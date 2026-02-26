@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 env:
+  # ... 你的现有环境变量 ...
   COOKIE: ${{ secrets.COOKIE }}
   COOKIE_2: ${{ secrets.COOKIE_2 }}
   COOKIE_3: ${{ secrets.COOKIE_3 }}
@@ -31,6 +32,78 @@ jobs:
           cd workflows
           yarn
           yarn checkin
+
+  # ========== 新增：保鲜策略 ==========
+  Heartbeat:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'  # 仅定时触发时执行
+    steps:
+      - name: Heartbeat
+        run: |
+          echo "🏃 仓库活跃度心跳 - $(date)"
+          echo "👤 触发者: ${{ github.actor }}"
+          echo "🔗 提交: ${{ github.sha }}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: Auto
+
+# on:
+#   schedule:
+#     - cron: "30 22 * * *" # 北京时间上午06:30
+#   workflow_dispatch:
+
+# env:
+#   COOKIE: ${{ secrets.COOKIE }}
+#   COOKIE_2: ${{ secrets.COOKIE_2 }}
+#   COOKIE_3: ${{ secrets.COOKIE_3 }}
+#   COOKIE_4: ${{ secrets.COOKIE_4 }}
+#   COOKIE_5: ${{ secrets.COOKIE_5 }}
+#   EMAIL_USER: ${{ secrets.EMAIL_USER }}
+#   EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+#   EMAIL_TO: ${{ secrets.EMAIL_TO }}
+#   DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
+#   PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+#   WEIXIN_WEBHOOK: ${{ secrets.WEIXIN_WEBHOOK }}
+#   SERVERPUSHKEY: ${{ secrets.SERVERPUSHKEY }}
+#   FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+
+# jobs:
+#   CheckIn:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - uses: actions/setup-node@v2
+#       - name: Run Project
+#         run: |
+#           cd workflows
+#           yarn
+#           yarn checkin
 
 #  SeaGold:
 #    needs: CheckIn
