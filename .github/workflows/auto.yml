@@ -2,11 +2,17 @@ name: Auto
 
 on:
   schedule:
-    - cron: "30 22 * * *" # 北京时间上午06:30
+    # 🌙 深夜保活（北京时间 06:30）
+    - cron: "30 22 * * *"
+    # 🌅 清晨保活（北京时间 10:00）
+    - cron: "0 2 * * *"
+    # 🌤️ 下午保活（北京时间 16:00）
+    - cron: "0 8 * * *"
+    # 🏃 每周额外保活（周日 12:00）
+    - cron: "0 4 * * 0"
   workflow_dispatch:
 
 env:
-  # ... 你的现有环境变量 ...
   COOKIE: ${{ secrets.COOKIE }}
   COOKIE_2: ${{ secrets.COOKIE_2 }}
   COOKIE_3: ${{ secrets.COOKIE_3 }}
@@ -22,6 +28,7 @@ env:
   FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
 
 jobs:
+  # ========== 主任务：签到 ==========
   CheckIn:
     runs-on: ubuntu-latest
     steps:
@@ -33,17 +40,33 @@ jobs:
           yarn
           yarn checkin
 
-  # ========== 新增：保鲜策略 ==========
+  # ========== 任务2：备用签到（错峰执行） ==========
+  CheckInBackup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'  # 仅定时触发
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: Backup Checkin
+        run: |
+          cd workflows
+          yarn
+          yarn checkin
+
+  # ========== 轻量心跳：必须成功 ==========
   Heartbeat:
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'  # 仅定时触发时执行
+    # ⚠️ 关键：即使其他任务失败，心跳也要执行
+    if: always()
+    needs: CheckIn
     steps:
       - name: Heartbeat
         run: |
-          echo "🏃 仓库活跃度心跳 - $(date)"
+          echo "🏃 仓库保鲜心跳"
+          echo "⏰ 时间: $(date '+%Y-%m-%d %H:%M:%S')"
           echo "👤 触发者: ${{ github.actor }}"
           echo "🔗 提交: ${{ github.sha }}"
-
+          echo "✅ 签到状态: ${{ needs.CheckIn.result }}"
 
 
 
